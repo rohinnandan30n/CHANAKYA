@@ -1,0 +1,14 @@
+{
+    "udatta": {
+        "pitch_delta": 1.0,
+        "description": "High pitched accent"
+    },
+    "anudatta": {
+        "pitch_delta": -1.0,
+        "description": "Low pitched accent"
+    },
+    "svarita": {
+        "pitch_delta": 0.5,
+        "description": "Falling pitch from udatta"
+    }
+}
