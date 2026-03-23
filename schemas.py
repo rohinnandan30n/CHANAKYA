@@ -1,6 +1,15 @@
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 
+class ReciteRequest(BaseModel):
+    text: str
+    raga_preference: Optional[str] = None
+
+class JobStatus(BaseModel):
+    job_id: str
+    status: str
+    result: Optional[Dict[str, Any]] = None
+
 class LinguisticOutput(BaseModel):
     """
     Schema for linguistic processing output.
@@ -8,7 +17,7 @@ class LinguisticOutput(BaseModel):
     tokens: List[str]
     syllables: List[List[str]]
     metre: str
-    sandhi_applied: List[Any]  # Based on mock returning []
+    sandhi_applied: List[Any]
 
 class MelodicOutput(BaseModel):
     """
@@ -26,7 +35,6 @@ class AudioOutput(BaseModel):
     file_path: str
     duration_ms: int
 
-# Placeholder for sandhi rules structure
 class SandhiRule(BaseModel):
     pattern: str
     replacement: str
