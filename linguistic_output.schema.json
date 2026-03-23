@@ -1,19 +1,135 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "LinguisticOutput",
+  "title": "Sanskrit Linguistic Analysis Output",
+  "description": "Complete linguistic analysis output including transliteration, syllabification, and metrical identification",
   "type": "object",
+  "required": ["original_text", "canonical_slp1", "syllables", "chanda"],
   "properties": {
-    "original_text": { "type": "string" },
-    "tokens": {
-      "type": "array",
-      "items": { "type": "string" }
+    "original_text": {
+      "type": "string",
+      "description": "Original input text in any supported scheme (Devanagari, IAST, Harvard-Kyoto)",
+      "minLength": 1
     },
-    "sandhi_applied": { "type": "boolean" },
-    "phonemes": {
-      "type": "array",
-      "items": { "type": "string" }
+    "input_scheme": {
+      "type": ["string", "null"],
+      "description": "Detected input scheme",
+      "enum": ["devanagari", "iast", "harvard_kyoto", "slp1", "unknown", null]
     },
-    "metadata": { "type": "object" }
+    "canonical_slp1": {
+      "type": "string",
+      "description": "Canonical SLP1 (Sanskrit Library Phonetic) representation",
+      "minLength": 1
+    },
+    "syllables": {
+      "type": "array",
+      "description": "List of syllables with metrical weight classification",
+      "items": {
+        "type": "object",
+        "required": ["syllable", "weight", "index"],
+        "properties": {
+          "syllable": {
+            "type": "string",
+            "description": "Syllable text in SLP1",
+            "minLength": 1
+          },
+          "weight": {
+            "type": "string",
+            "description": "Metrical weight: Laghu (light) or Guru (heavy)",
+            "enum": ["L", "G"]
+          },
+          "index": {
+            "type": "integer",
+            "description": "0-based position in syllable sequence",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "metrical_pattern": {
+      "type": ["string", "null"],
+      "description": "Metrical pattern as string of L's and G's",
+      "pattern": "^[LG]+$"
+    },
+    "chanda": {
+      "type": "object",
+      "description": "Identified metrical scheme (classical Sanskrit metre)",
+      "required": ["name", "syllables_per_pada", "gana_pattern", "confidence"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the metre (e.g., Anushtubh, Trishtubh)",
+          "minLength": 1
+        },
+        "syllables_per_pada": {
+          "type": "integer",
+          "description": "Number of syllables per quarter (pada)",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "gana_pattern": {
+          "type": "string",
+          "description": "Gana (metric pattern) visualization with space-separated segments",
+          "pattern": "^[LG ]+$"
+        },
+        "classification": {
+          "type": "string",
+          "description": "Metre category: sama (all quarters identical), ardhasama (first 2 and last 2 same), vishama (all different)",
+          "enum": ["sama", "ardhasama", "vishama", "unknown"]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Confidence score for metre identification: 1.0 (exact), 0.75-0.99 (fuzzy), 0.0 (unknown)",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Additional information about the metre"
+        },
+        "matra_count": {
+          "type": ["integer", "null"],
+          "description": "Total mora count for the pattern",
+          "minimum": 1
+        },
+        "example": {
+          "type": ["string", "null"],
+          "description": "Example verse in SLP1"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata about the analysis",
+      "properties": {
+        "analysis_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of analysis"
+        },
+        "total_syllables": {
+          "type": "integer",
+          "description": "Total number of syllables",
+          "minimum": 1
+        },
+        "guru_count": {
+          "type": "integer",
+          "description": "Number of Guru (heavy) syllables",
+          "minimum": 0
+        },
+        "laghu_count": {
+          "type": "integer",
+          "description": "Number of Laghu (light) syllables",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": ["array", "null"],
+          "description": "List of warnings or issues during analysis",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
   },
-  "required": ["original_text", "tokens", "sandhi_applied", "phonemes"]
+  "additionalProperties": false
 }

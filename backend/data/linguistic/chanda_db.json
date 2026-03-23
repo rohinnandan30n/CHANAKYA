@@ -1,0 +1,112 @@
+{
+  "description": "Database of Sanskrit Metrical Schemes (Chandas)",
+  "framework": "Classical Sanskrit metres with syllable counts, gana patterns, and example verses",
+  "metres": {
+    "anushtubh": {
+      "name": "Anushtubh",
+      "syllables_per_pada": 8,
+      "syllables_per_verse": 32,
+      "classification": "sama",
+      "gana_pattern": "GGGG LGGG",
+      "gana_sequence": ["guru", "guru", "guru", "guru", "laghu", "guru", "guru", "guru"],
+      "matra_count": 32,
+      "notes": "Most common metre in Vedas and epics; also called Ashtaka",
+      "example": "agnI medhA jushA RM mayA mat_tam upA gam",
+      "example_slp1": "agnI medhA jushA RM mayA mat_tam upA gam"
+    },
+    "trishtubh": {
+      "name": "Trishtubh",
+      "syllables_per_pada": 11,
+      "syllables_per_verse": 44,
+      "classification": "sama",
+      "gana_pattern": "GGGG LLGG GLLG",
+      "gana_sequence": ["guru", "guru", "guru", "guru", "laghu", "laghu", "guru", "guru", "guru", "laghu", "laghu"],
+      "matra_count": 44,
+      "notes": "Verse metre with 11 syllables per quarter; complex internal structure",
+      "example": "yajYaM vAmadevAya cakrAM",
+      "example_slp1": "yajYaM vAmadevAya cakrAM"
+    },
+    "jagati": {
+      "name": "Jagati",
+      "syllables_per_pada": 12,
+      "syllables_per_verse": 48,
+      "classification": "sama",
+      "gana_pattern": "GGGG GLLG GLLG G",
+      "gana_sequence": ["guru", "guru", "guru", "guru", "guru", "laghu", "laghu", "guru", "guru", "laghu", "laghu", "guru"],
+      "matra_count": 48,
+      "notes": "Extended verse metre; 12 syllables per quarter; used in Vedic chanting",
+      "example": "indraM vayaM sapremam upavasAmi",
+      "example_slp1": "indraM vayaM sapremam upavasAmi"
+    },
+    "vasantatilaka": {
+      "name": "Vasantatilaka",
+      "syllables_per_pada": 14,
+      "syllables_per_verse": 56,
+      "classification": "ardhasama",
+      "gana_pattern": "LLGG LGGL GGLL G",
+      "gana_sequence": ["laghu", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "laghu", "guru"],
+      "matra_count": 56,
+      "notes": "Half-similar metres; used in classical Sanskrit kavya; 14 syllables per pada",
+      "example": "vasantaM priya-sakhA cakoraM",
+      "example_slp1": "vasantaM priya-sakhA cakoraM"
+    },
+    "mandakranta": {
+      "name": "Mandakranta",
+      "syllables_per_pada": 17,
+      "syllables_per_verse": 68,
+      "classification": "vishama",
+      "gana_pattern": "LLGG LGGL GGLG GLGG L",
+      "gana_sequence": ["laghu", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "laghu", "guru", "guru"],
+      "matra_count": 68,
+      "notes": "Dissimilar metre with 17 syllables; complex structure; prized in kavya literature",
+      "example": "mandaM mandaM cArA priyAya bhikshuM",
+      "example_slp1": "mandaM mandaM cArA priyAya bhikshuM"
+    },
+    "shardula-vikridita": {
+      "name": "Shardula-Vikridita",
+      "syllables_per_pada": 19,
+      "syllables_per_verse": 76,
+      "classification": "ardhasama",
+      "gana_pattern": "LGGL GGLG GGLL GGLG G",
+      "gana_sequence": ["laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "guru", "guru", "guru", "laghu", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu"],
+      "matra_count": 76,
+      "notes": "Verse metre used in classical poetry; 19 syllables; subtle rhythmic pattern",
+      "example": "carA cakrapANer api varunAlAya padmAya",
+      "example_slp1": "carA cakrapANer api varunAlAya padmAya"
+    },
+    "nata-navaraja": {
+      "name": "Nata-Navaraja",
+      "syllables_per_pada": 16,
+      "syllables_per_verse": 64,
+      "classification": "ardhasama",
+      "gana_pattern": "LGGG LLGG LGGL GGL",
+      "gana_sequence": ["laghu", "guru", "guru", "guru", "laghu", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu", "guru", "guru", "laghu"],
+      "matra_count": 64,
+      "notes": "Metres used in dramatic/ verse; 16 syllables per pada",
+      "example": "natanArajaM bhajAmi",
+      "example_slp1": "natanArajaM bhajAmi"
+    }
+  },
+  "metre_categories": {
+    "sama": "Metres with identical pattern in all four quarters (padas)",
+    "ardhasama": "Metres where first two and last two quarters have same pattern",
+    "vishama": "Metres with all different patterns in each quarter"
+  },
+  "gana_definitions": {
+    "guru": {"symbol": "G", "symbol_devanagari": "ग", "meaning": "heavy/long"},
+    "laghu": {"symbol": "L", "symbol_devanagari": "ल", "meaning": "light/short"}
+  },
+  "matching_rules": {
+    "exact_match": "Pattern matches metre definition exactly",
+    "fuzzy_match": "Pattern similarity >= 0.8 with edited distance <= 2",
+    "partial_match": "Submetre pattern matches; may be incomplete verse",
+    "unknown": "No significant match found with known metres"
+  },
+  "confidence_scoring": {
+    "exact_match_score": 1.0,
+    "fuzzy_match_threshold": 0.8,
+    "partial_match_threshold": 0.75,
+    "unknown_threshold": 0.0,
+    "calculation": "Levenshtein distance normalized by pattern length"
+  }
+}
