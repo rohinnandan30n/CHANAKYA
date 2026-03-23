@@ -1,0 +1,94 @@
+{
+  "supported_schemes": {
+    "devanagari": {
+      "code": "DEVANAGARI",
+      "language": "Sanskrit",
+      "description": "Devanagari script (नागरी)"
+    },
+    "iast": {
+      "code": "IAST",
+      "language": "Sanskrit",
+      "description": "International Alphabet of Sanskrit Transliteration (Latin with diacritics)"
+    },
+    "hk": {
+      "code": "HK",
+      "language": "Sanskrit",
+      "description": "Harvard-Kyoto transliteration (ASCII-only)"
+    },
+    "slp1": {
+      "code": "SLP1",
+      "language": "Sanskrit",
+      "description": "Sanskrit Library Phonetic (canonical form)"
+    }
+  },
+  "diacritic_mappings": {
+    "iast": {
+      "ā": "long a",
+      "ī": "long i",
+      "ū": "long u",
+      "ṛ": "vocalic r",
+      "ē": "long e",
+      "ō": "long o",
+      "ṃ": "anusvara",
+      "ḥ": "visarga",
+      "ñ": "palatal nasal",
+      "ṇ": "retroflex nasal",
+      "ṭ": "retroflex t",
+      "ḍ": "retroflex d",
+      "ś": "palatal s",
+      "ṣ": "retroflex s",
+      "ṅ": "velar nasal",
+      "ḷ": "vocalic l"
+    }
+  },
+  "edge_cases": {
+    "mixed_scripts": "Use dominant script detection - prefer Devanagari if present",
+    "missing_diacritics": "Warn but continue - treat as best guess approximation",
+    "latin_characters": "Log as unrecognized - may be proper nouns or foreign terms",
+    "numbers": "Preserve in output",
+    "punctuation": "Remove during preprocessing, handled separately"
+  },
+  "transliteration_confidence": {
+    "devanagari_to_slp1": "High - direct mapping, 1:1 correspondence",
+    "iast_to_slp1": "High - well-defined standard",
+    "hk_to_slp1": "Medium - some ambiguity in consonant clusters"
+  },
+  "laghu_guru_rules": {
+    "description": "Sanskrit prosody syllable weight classification",
+    "guru_conditions": {
+      "long_vowel": "Syllable with inherent long vowel (A:, I:, U:, R:, L:) is always Guru (G)",
+      "vowel_before_conjunct": "Short vowel before a conjunct consonant (consonant cluster) is Guru (G)",
+      "vowel_before_anusvara": "Vowel before anusvara (M in SLP1) is Guru (G)",
+      "vowel_before_visarga": "Vowel before visarga (H in SLP1) is Guru (G)",
+      "final_syllable_with_consonant": "Final syllable with trailing consonant(s) is Guru (G)"
+    },
+    "laghu_conditions": {
+      "short_vowel": "Short vowel (a, i, u, r, l, e, o) not in Guru conditions is Laghu (L)",
+      "vowel_not_followed_by_conjunct": "Short vowel followed by only single consonant or space is Laghu (L)"
+    },
+    "slp1_vowels": {
+      "short": ["a", "i", "u", "r", "l", "e", "o"],
+      "long": ["A", "I", "U", "R", "L", "E", "O"]
+    },
+    "slp1_nasals": ["m", "n", "N", "n", "M"],
+    "slp1_special": {
+      "anusvara": "M",
+      "visarga": "H",
+      "description": "Anusvara and visarga modify syllable weight"
+    },
+    "ambiguous_cases": {
+      "nasal_before_cluster": "Nasal (m, n, N, n) before consonant cluster - treat syllable as Guru if nasal perceived as part of closure",
+      "final_syllable": "Final syllable always considered based on its own vowel length and following segments",
+      "closed_syllable": "Syllable ending with consonant group (CVC pattern) is Guru even with short vowel"
+    }
+  },
+  "metres": {
+    "anushtubh": {
+      "description": "8-syllable metre with pattern GGGG LGGG per quarter (pAda)",
+      "pattern": "GGGG LGGG",
+      "syllable_count": 8,
+      "example": "agnI medhA jushA RM / mayA mat_tam upA gam",
+      "notes": "Most common metre in Sanskrit epics and Vedas"
+    }
+  }
+}
