@@ -4,4 +4,5 @@ pydantic
 jsonschema
 fastapi
 uvicorn
+python-multipart
 # Add other dependencies here
