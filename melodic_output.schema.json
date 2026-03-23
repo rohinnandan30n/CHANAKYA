@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MelodicOutput",
+  "type": "object",
+  "properties": {
+    "linguistic_id": { "type": "string" },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "durations": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "frequencies": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "tempo": { "type": "integer" },
+    "scale": { "type": "string" },
+    "metadata": { "type": "object" }
+  },
+  "required": ["linguistic_id", "notes", "durations", "frequencies", "tempo", "scale"]
+}

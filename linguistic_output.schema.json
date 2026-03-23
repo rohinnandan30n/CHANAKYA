@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LinguisticOutput",
+  "type": "object",
+  "properties": {
+    "original_text": { "type": "string" },
+    "tokens": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sandhi_applied": { "type": "boolean" },
+    "phonemes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "metadata": { "type": "object" }
+  },
+  "required": ["original_text", "tokens", "sandhi_applied", "phonemes"]
+}

@@ -1,0 +1,5 @@
+# Requirements for CHNAKYA core logic
+pytest
+pydantic
+jsonschema
+# Add other dependencies here

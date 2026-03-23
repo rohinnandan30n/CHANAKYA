@@ -1,0 +1,12 @@
+[
+  {
+    "pattern": "a + i",
+    "replacement": "e",
+    "description": "Guna Sandhi: a/ā + i/ī = e"
+  },
+  {
+    "pattern": "a + u",
+    "replacement": "o",
+    "description": "Guna Sandhi: a/ā + u/ū = o"
+  }
+]
