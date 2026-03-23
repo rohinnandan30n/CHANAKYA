@@ -5,26 +5,28 @@ class LinguisticOutput(BaseModel):
     """
     Schema for linguistic processing output.
     """
-    original_text: str
     tokens: List[str]
-    sandhi_applied: bool
-    phonemes: List[str]
-    metadata: Dict[str, Any] = {}
+    syllables: List[List[str]]
+    metre: str
+    sandhi_applied: List[Any]  # Based on mock returning []
 
 class MelodicOutput(BaseModel):
     """
     Schema for melodic generation output.
     """
-    linguistic_id: str
-    notes: List[str]
-    durations: List[float]
-    frequencies: List[float]
-    tempo: int
-    scale: str
-    metadata: Dict[str, Any] = {}
+    raga: str
+    f0_contour: List[float]
+    accent_map: List[Any]
+    explanation: str
+
+class AudioOutput(BaseModel):
+    """
+    Schema for audio generation output.
+    """
+    file_path: str
+    duration_ms: int
 
 # Placeholder for sandhi rules structure
-# This will be reflected in sandhi_rules.json
 class SandhiRule(BaseModel):
     pattern: str
     replacement: str

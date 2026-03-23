@@ -2,4 +2,6 @@
 pytest
 pydantic
 jsonschema
+fastapi
+uvicorn
 # Add other dependencies here
