@@ -1,0 +1,16 @@
+{
+    "Yaman": {
+        "arohana": ["N", "R", "G", "M", "D", "N", "S"],
+        "avarohana": ["S", "N", "D", "P", "M", "G", "R", "S"],
+        "vadi": "G",
+        "samvadi": "N",
+        "notes": ["S", "R", "G", "M", "P", "D", "N"]
+    },
+    "Bhairav": {
+        "arohana": ["S", "r", "G", "M", "P", "d", "N", "S"],
+        "avarohana": ["S", "N", "d", "P", "M", "G", "r", "S"],
+        "vadi": "d",
+        "samvadi": "r",
+        "notes": ["S", "r", "G", "M", "P", "d", "N"]
+    }
+}
