@@ -1,6 +1,7 @@
 """Melodic module for accent identification and raga mapping."""
 
-from .accent_identifier import AccentIdentifier, identify_accents
-from .raga_engine import RagaEngine, apply_raga
+from .accent_identifier import identify_accents
+from .raga_engine import apply_raga
+from .dev2 import apply_melody
 
-__all__ = ["AccentIdentifier", "identify_accents", "RagaEngine", "apply_raga"]
+__all__ = ["identify_accents", "apply_raga", "apply_melody"]

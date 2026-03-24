@@ -14,15 +14,24 @@ def recite(text: str, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
     jobs[job_id] = {
         "status": "queued",
+        "stage": "linguistic",
         "progress": 0,
-        "result": None
+        "result": None,
+        "explanation": None
     }
     background_tasks.add_task(run_pipeline, job_id, text, jobs)
     return {"job_id": job_id, "status": "queued"}
 
 @router.get("/status/{job_id}")
 def get_status(job_id: str):
-    return jobs.get(job_id, {"error": "job not found"})
+    job = jobs.get(job_id, {"error": "job not found"})
+    return {
+        "status": job.get("status"),
+        "stage": job.get("stage"),
+        "progress": job.get("progress", 0),
+        "explanation": job.get("explanation"),
+        "result": job.get("result")
+    }
 
 @router.get("/audio/{job_id}")
 def get_audio(job_id: str):
