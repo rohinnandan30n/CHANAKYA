@@ -347,6 +347,169 @@ class Syllabifier:
         """
         marked = self.syllabify_and_mark(slp1_text)
         return ''.join(weight for _, weight in marked)
+    
+    def identify_chanda(self, lg_sequence: List[str]) -> Dict:
+        """
+        Identify Sanskrit metrical scheme (chanda) from Laghu-Guru sequence.
+        
+        Task 4 Implementation: Chanda Identification
+        - Step 17: Load chanda_db.json database of metre patterns
+        - Step 18: Match against known metres using pattern comparison
+        - Step 19: Return structured dict with metre details
+        - Step 20: Handle unknown metres with fuzzy matching
+        
+        Args:
+            lg_sequence (List[str]): List of 'L' or 'G' strings, 
+                                     or a single string like 'GGGGLGGG'
+            
+        Returns:
+            Dict with keys:
+            - name (str): Metre name (e.g., 'Anushtubh', 'Trishtubh')
+            - syllables_per_pada (int): Syllables per quarter
+            - gana_pattern (str): Visual pattern (e.g., 'GGGG LGGG')
+            - confidence (float): 1.0 for exact match, < 1.0 for fuzzy
+            - classification (str): 'sama', 'ardhasama', or 'vishama'
+            - notes (str): Description of the metre
+            
+        Raises:
+            ValueError: If input is invalid
+            
+        Examples:
+            >>> syll = Syllabifier()
+            >>> result = syll.identify_chanda(['G','G','G','G','L','G','G','G'])
+            >>> # Returns: {'name': 'Anushtubh', 'syllables_per_pada': 8, 
+            >>>            'gana_pattern': 'GGGG LGGG', 'confidence': 1.0, ...}
+            >>> 
+            >>> result = syll.identify_chanda('GGGGLGGG')
+            >>> # Same result
+        """
+        # Normalize input
+        if isinstance(lg_sequence, str):
+            pattern = lg_sequence.upper().replace(' ', '')
+        else:
+            pattern = ''.join(lg_sequence).upper()
+        
+        if not pattern or not all(c in ('L', 'G') for c in pattern):
+            raise ValueError(f"Invalid LG sequence: {lg_sequence}")
+        
+        # Load chanda database
+        db_path = os.path.join(
+            os.path.dirname(__file__), 
+            '..', 'data', 'linguistic', 'chanda_db.json'
+        )
+        
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                chanda_db = json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load chanda_db.json: {e}")
+            raise ValueError(f"Cannot load metre database: {e}")
+        
+        metres = chanda_db.get('metres', {})
+        
+        # Step 18: Try exact match first
+        for metre_key, metre_data in metres.items():
+            # Get expected pattern from gana_pattern
+            expected_pattern = metre_data['gana_pattern'].replace(' ', '')
+            
+            # For each pada/quarter of the verse
+            syllables_per_pada = metre_data['syllables_per_pada']
+            
+            # Check if input matches this metre's pattern
+            if pattern == expected_pattern:
+                # Exact match
+                return {
+                    'name': metre_data['name'],
+                    'syllables_per_pada': syllables_per_pada,
+                    'gana_pattern': metre_data['gana_pattern'],
+                    'classification': metre_data.get('classification', 'sama'),
+                    'confidence': 1.0,
+                    'notes': metre_data.get('notes', ''),
+                    'matra_count': metre_data.get('matra_count', syllables_per_pada * 2),
+                    'example': metre_data.get('example', '')
+                }
+            
+            # Check for partial match (if input is just one pada)
+            if len(pattern) == syllables_per_pada:
+                # This might be a single pada
+                similarity = self._calculate_similarity(pattern, expected_pattern)
+                if similarity >= 0.85:
+                    return {
+                        'name': metre_data['name'],
+                        'syllables_per_pada': syllables_per_pada,
+                        'gana_pattern': metre_data['gana_pattern'],
+                        'classification': metre_data.get('classification', 'sama'),
+                        'confidence': similarity,
+                        'notes': metre_data.get('notes', '') + ' (fuzzy match)',
+                        'matra_count': metre_data.get('matra_count', syllables_per_pada * 2),
+                        'example': metre_data.get('example', '')
+                    }
+        
+        # Step 20: Fuzzy matching for unknown metres
+        best_match = None
+        best_similarity = 0.0
+        
+        for metre_key, metre_data in metres.items():
+            expected_pattern = metre_data['gana_pattern'].replace(' ', '')
+            syllables_per_pada = metre_data['syllables_per_pada']
+            
+            # Try matching against this metre
+            if len(pattern) <= len(expected_pattern):
+                similarity = self._calculate_similarity(pattern, expected_pattern[:len(pattern)])
+                if similarity > best_similarity:
+                    best_similarity = similarity
+                    best_match = (metre_data, similarity)
+        
+        if best_match and best_similarity >= 0.75:
+            metre_data, similarity = best_match
+            return {
+                'name': metre_data['name'],
+                'syllables_per_pada': metre_data['syllables_per_pada'],
+                'gana_pattern': metre_data['gana_pattern'],
+                'classification': metre_data.get('classification', 'sama'),
+                'confidence': similarity,
+                'notes': f"{metre_data.get('notes', '')} (partial/fuzzy match)",
+                'matra_count': metre_data.get('matra_count', metre_data['syllables_per_pada'] * 2),
+                'example': metre_data.get('example', '')
+            }
+        
+        # Unknown metre
+        return {
+            'name': 'Unknown',
+            'syllables_per_pada': len(pattern),
+            'gana_pattern': pattern,
+            'classification': 'unknown',
+            'confidence': 0.0,
+            'notes': f"No known metre matches pattern {pattern}",
+            'matra_count': len(pattern) * 2,
+            'example': ''
+        }
+    
+    @staticmethod
+    def _calculate_similarity(pattern1: str, pattern2: str) -> float:
+        """
+        Calculate similarity between two LG patterns using Levenshtein distance.
+        
+        Args:
+            pattern1 (str): First LG pattern
+            pattern2 (str): Second LG pattern
+            
+        Returns:
+            float: Similarity score between 0.0 and 1.0
+        """
+        if not pattern1 or not pattern2:
+            return 0.0
+        
+        # Normalize lengths
+        min_len = min(len(pattern1), len(pattern2))
+        max_len = max(len(pattern1), len(pattern2))
+        
+        # Count matching positions
+        matches = sum(1 for i in range(min_len) if pattern1[i] == pattern2[i])
+        
+        # Levenshtein-like scoring
+        similarity = matches / max_len
+        return similarity
 
 
 # Module-level convenience functions
@@ -389,3 +552,18 @@ def get_metrical_pattern(slp1_text: str) -> str:
     """
     syllabifier = Syllabifier()
     return syllabifier.get_metrical_pattern(slp1_text)
+
+
+def identify_chanda(lg_sequence: List[str]) -> Dict:
+    """
+    Convenience function to identify metrical scheme from LG sequence.
+    
+    Args:
+        lg_sequence: List of 'L'/'G' strings or a single pattern string
+        
+    Returns:
+        Dict with metre details including name, syllables_per_pada, 
+        gana_pattern, confidence, classification, and notes
+    """
+    syllabifier = Syllabifier()
+    return syllabifier.identify_chanda(lg_sequence)

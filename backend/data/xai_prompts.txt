@@ -1,0 +1,21 @@
+RAGA_INTRO:
+The raga '{raga_name}' is a classical Indian musical framework characterized by its unique note set and melodic contours.
+
+VADI_SAMVADI:
+The primary note (vadi) is '{vadi}' and the secondary note (samvadi) is '{samvadi}'. These form the tonal center of the raga.
+
+AROHANA_DESC:
+Ascending notes (arohana): {arohana}
+
+AVAROHANA_DESC:
+Descending notes (avarohana): {avarohana}
+
+CONTOUR_SUMMARY:
+Pitch range: {min_freq:.1f} Hz to {max_freq:.1f} Hz. Average frequency: {avg_freq:.1f} Hz across {syllable_count} syllables.
+
+RULES_APPLIED:
+The following rules were applied in the melodic transformation:
+{rules_list}
+
+CLOSING:
+This explains how your Sanskrit verse was transformed into a melodic recitation following classical Indian raga principles and Vedic accent patterns.
