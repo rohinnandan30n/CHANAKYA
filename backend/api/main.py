@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from backend.api.recite import router as recite_router
 
 app = FastAPI(title="Svara-Chanda API", version="0.1.0")
 
@@ -10,6 +11,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include the recite router
+app.include_router(recite_router, prefix="/api/v1")
 
 @app.get("/health")
 def health():
