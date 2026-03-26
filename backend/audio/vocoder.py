@@ -125,7 +125,7 @@ class SanskritVocoder:
             float32 numpy array waveform at 22050 Hz
         """
         if not phonemes:
-            raise ValueError("phonemes list cannot be empty")
+            return np.zeros(self.sample_rate, dtype=np.float32)
         if not f0_hz:
             raise ValueError("f0_hz list cannot be empty")
         if not durations_ms:

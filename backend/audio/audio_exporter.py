@@ -150,3 +150,35 @@ if __name__ == "__main__":
         print(f"✅ MP3 exported: {mp3_path}")
     else:
         print("⚠️  MP3 skipped (pydub not installed)")
+
+
+def generate_audio(phonemes, f0_hz, durations_ms,
+                   output_format="wav",
+                   output_path="output/recitation.wav") -> dict:
+    """
+    Full audio generation: synthesize + export.
+    Dev 4 / test contract entry point.
+    """
+    from backend.audio.vocoder import SanskritVocoder
+    import os
+
+    vocoder = SanskritVocoder()
+    n = min(len(phonemes), len(f0_hz), len(durations_ms))
+    waveform = vocoder.synthesize(phonemes[:n], f0_hz[:n], durations_ms[:n])
+
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+    job_id = os.path.splitext(os.path.basename(output_path))[0]
+    out_dir = os.path.dirname(output_path) or "output"
+
+    if output_format == "mp3":
+        path = export_mp3(waveform, job_id, output_dir=out_dir) or export_wav(waveform, job_id, output_dir=out_dir)
+    else:
+        path = export_wav(waveform, job_id, output_dir=out_dir)
+
+    import soundfile as sf
+    info = sf.info(path)
+    return {
+        "path": path,
+        "duration_sec": round(info.duration, 3),
+        "sample_rate": info.samplerate,
+    }

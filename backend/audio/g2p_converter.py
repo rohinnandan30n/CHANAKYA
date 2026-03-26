@@ -6,7 +6,7 @@ Uses mlphon for Indic G2P conversion.
 
 import logging
 from typing import List
-from sandhi_processor import load_sandhi_rules, apply_sandhi
+from .sandhi_processor import load_sandhi_rules, apply_sandhi
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

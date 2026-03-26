@@ -136,39 +136,40 @@ def collate_fn(batch):
 # (Replace with real HiFi-GAN checkpoint loading for production)
 # ---------------------------------------------------------------------------
 
-class MinimalVocoderModel(nn.Module):
-    """
-    Lightweight 1-D CNN vocoder proxy.
-
-    In production, replace this with:
-        from hifigan.models import Generator
-        model = Generator(h)
-        model.load_state_dict(torch.load(checkpoint_path)['generator'])
-
-    This stand-in is sufficient for fine-tuning pipeline validation
-    when a real HiFi-GAN checkpoint is unavailable.
-    """
-
-    def __init__(self, in_channels: int = 1, hidden: int = 64):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Conv1d(in_channels, hidden, kernel_size=7, padding=3),
-            nn.LeakyReLU(0.1),
-            nn.Conv1d(hidden, hidden, kernel_size=5, padding=2),
-            nn.LeakyReLU(0.1),
-            nn.Conv1d(hidden, in_channels, kernel_size=3, padding=1),
-            nn.Tanh(),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: (B, T) → (B, 1, T) → (B, T)
-        return self.net(x.unsqueeze(1)).squeeze(1)
-
-
-# ---------------------------------------------------------------------------
-# Training loop
-# ---------------------------------------------------------------------------
-
+if TORCH_AVAILABLE:
+    class MinimalVocoderModel(nn.Module):
+        """
+        Lightweight 1-D CNN vocoder proxy.
+    
+        In production, replace this with:
+            from hifigan.models import Generator
+            model = Generator(h)
+            model.load_state_dict(torch.load(checkpoint_path)['generator'])
+    
+        This stand-in is sufficient for fine-tuning pipeline validation
+        when a real HiFi-GAN checkpoint is unavailable.
+        """
+    
+        def __init__(self, in_channels: int = 1, hidden: int = 64):
+            super().__init__()
+            self.net = nn.Sequential(
+                nn.Conv1d(in_channels, hidden, kernel_size=7, padding=3),
+                nn.LeakyReLU(0.1),
+                nn.Conv1d(hidden, hidden, kernel_size=5, padding=2),
+                nn.LeakyReLU(0.1),
+                nn.Conv1d(hidden, in_channels, kernel_size=3, padding=1),
+                nn.Tanh(),
+            )
+    
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
+            # x: (B, T) → (B, 1, T) → (B, T)
+            return self.net(x.unsqueeze(1)).squeeze(1)
+    
+    
+    # ---------------------------------------------------------------------------
+    # Training loop
+    # ---------------------------------------------------------------------------
+    
 def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Training device: %s", device)

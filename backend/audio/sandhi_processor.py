@@ -20,7 +20,7 @@ def load_sandhi_rules(rules_path: str = "sandhi_rules.json") -> list:
     return rules
 
 
-def apply_sandhi(tokens: List[str], rules: list) -> str:
+def apply_sandhi(tokens: List[str], rules: list = None) -> str:
     """
     Apply Sanskrit sandhi rules to SLP1 token list.
 
@@ -31,8 +31,13 @@ def apply_sandhi(tokens: List[str], rules: list) -> str:
     Returns:
         Single SLP1 string with sandhi applied
     """
+    if rules is None:
+        try:
+            rules = load_sandhi_rules()
+        except Exception:
+            rules = []
     if not tokens:
-        raise ValueError("Token list cannot be empty")
+        return ""
 
     result = list(tokens)
 
