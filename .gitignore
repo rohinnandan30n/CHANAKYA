@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+output/
+*.wav
+__pycache__/
