@@ -1,7 +1,7 @@
 import time
 from backend.linguistic.dev1 import process_text
 from backend.melodic.dev2 import apply_melody
-from backend.mocks.mock_audio import process as generate_audio
+from backend.audio.dev3 import generate_audio
 
 def run_pipeline(job_id, text, jobs):
     try:
