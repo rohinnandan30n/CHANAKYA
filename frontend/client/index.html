@@ -1,23 +1,647 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Svara Chanda — Sanskrit Metrical & Melodic Synthesis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: #f5f0e8; color: #2a1f1a; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2.5rem; background: #ffffff; border-bottom: 1px solid #e4ddd0; position: sticky; top: 0; z-index: 100; }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #2a1f1a; }
+  .logo-icon { color: #d4562a; }
+  .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-welcome { font-size: 0.88rem; color: #5c4a3a; font-family: sans-serif; display: none; }
+  .nav-btn { background: #e06035; color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; font-family: sans-serif; font-weight: 500; }
+  .nav-btn:hover { background: #c44d22; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .hero { text-align: center; padding: 6rem 2rem 4rem; background: #f5f0e8; }
+  .hero h1 { font-size: 3rem; font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; color: #2a1f1a; }
+  .hero h1 .accent { color: #d4562a; font-style: italic; }
+  .hero p { font-size: 1rem; color: #5c4a3a; max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.7; font-family: sans-serif; }
+  .hero-btn { background: #e06035; color: #fff; border: none; padding: 0.8rem 2rem; border-radius: 8px; font-size: 0.95rem; cursor: pointer; font-family: sans-serif; font-weight: 500; }
+  .hero-btn:hover { background: #c44d22; }
+  .features { padding: 4rem 2.5rem; max-width: 1080px; margin: 0 auto; }
+  .features h2 { text-align: center; font-size: 1.9rem; margin-bottom: 0.4rem; color: #2a1f1a; }
+  .features-sub { text-align: center; color: #9a8878; margin-bottom: 3rem; font-family: sans-serif; font-size: 0.92rem; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+  .feature-card { background: #fefcf8; border: 1px solid #e4ddd0; border-radius: 14px; padding: 1.5rem; }
+  .feature-icon { font-size: 1.3rem; margin-bottom: 0.75rem; color: #d4562a; }
+  .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: #2a1f1a; font-family: sans-serif; }
+  .feature-card p { font-size: 0.85rem; color: #5c4a3a; line-height: 1.55; font-family: sans-serif; }
+  .cta-section { text-align: center; padding: 4rem 2rem; background: #fefcf8; border-top: 1px solid #e4ddd0; }
+  .cta-section h2 { font-size: 2rem; margin-bottom: 0.5rem; color: #2a1f1a; }
+  .cta-section h2 .accent { color: #d4562a; font-style: italic; }
+  .cta-section p { color: #5c4a3a; margin-bottom: 2rem; font-family: sans-serif; font-size: 0.92rem; }
+  footer { text-align: center; padding: 1.5rem; color: #9a8878; font-size: 0.82rem; border-top: 1px solid #e4ddd0; background: #ffffff; font-family: sans-serif; }
+  .analysis-header { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 2rem; background: #ffffff; border-bottom: 1px solid #e4ddd0; }
+  .back-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #5c4a3a; padding: 0.2rem 0.5rem; border-radius: 6px; }
+  .back-btn:hover { background: #f5f0e8; }
+  .analysis-header-text h2 { font-size: 1.05rem; font-weight: 700; color: #2a1f1a; font-family: sans-serif; }
+  .analysis-header-text p { font-size: 0.82rem; color: #9a8878; font-family: sans-serif; }
+  .analysis-actions { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; }
+  .action-btn { background: #fefcf8; border: 1px solid #e4ddd0; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.82rem; cursor: pointer; font-family: sans-serif; color: #5c4a3a; }
+  .action-btn:hover { background: #f5f0e8; }
+  .api-status { font-size: 0.75rem; font-family: sans-serif; padding: 0.25rem 0.65rem; border-radius: 20px; font-weight: 500; }
+  .api-status.connected { background: #e2f2e2; color: #2a6a2a; }
+  .api-status.disconnected { background: #fae3d8; color: #a83a10; }
+  .api-status.checking { background: #ede8e0; color: #5c4a3a; }
+  .analysis-layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 110px); }
+  .analysis-sidebar { background: #fefcf8; border-right: 1px solid #e4ddd0; padding: 1.25rem; overflow-y: auto; }
+  .analysis-main { background: #f5f0e8; padding: 1.25rem; overflow-y: auto; }
+  .sidebar-section { margin-bottom: 1.5rem; }
+  .sidebar-section h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.2rem; color: #2a1f1a; font-family: sans-serif; }
+  .sub { font-size: 0.78rem; color: #9a8878; margin-bottom: 0.75rem; font-family: sans-serif; }
+  label { font-size: 0.82rem; font-weight: 500; display: block; margin-bottom: 0.35rem; color: #5c4a3a; font-family: sans-serif; }
+  select, textarea, input[type=text] { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e4ddd0; border-radius: 7px; font-size: 0.85rem; font-family: sans-serif; background: #ffffff; color: #2a1f1a; }
+  textarea { resize: vertical; min-height: 110px; }
+  select:focus, textarea:focus, input:focus { outline: none; border-color: #d4562a; }
+  .analyze-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .analyze-btn { flex: 1; background: #e06035; color: #fff; border: none; padding: 0.6rem; border-radius: 7px; font-size: 0.88rem; cursor: pointer; font-weight: 500; font-family: sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .analyze-btn:hover { background: #c44d22; }
+  .analyze-btn:disabled { background: #e8b89e; cursor: default; }
+  .reset-btn { background: #fefcf8; border: 1px solid #e4ddd0; padding: 0.6rem 0.75rem; border-radius: 7px; cursor: pointer; font-size: 0.9rem; color: #5c4a3a; }
+  .reset-btn:hover { background: #f5f0e8; }
+  .divider { border: none; border-top: 1px solid #e4ddd0; margin: 1.25rem 0; }
+  .tabs-wrap { display: flex; flex-direction: column; gap: 4px; margin-bottom: 1rem; }
+  .tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); background: #e8e2d8; border-radius: 8px; padding: 3px; gap: 2px; }
+  .tab { padding: 0.45rem; text-align: center; font-size: 0.82rem; cursor: pointer; background: transparent; color: #5c4a3a; border: none; font-family: sans-serif; border-radius: 6px; }
+  .tab.active { background: #fefcf8; color: #2a1f1a; font-weight: 500; }
+  .tab:hover:not(.active) { background: #ddd8ce; }
+  .tab-content { background: #fefcf8; border: 1px solid #e4ddd0; border-radius: 10px; padding: 1.5rem; min-height: 280px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .empty-state { text-align: center; color: #c0b0a0; padding: 3rem 1rem; font-family: sans-serif; font-size: 0.88rem; }
+  .search-wrap { position: relative; margin-bottom: 0.75rem; }
+  .search-wrap svg { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); }
+  .search-input { padding-left: 2rem !important; }
+  .history-item { border: 1px solid #e4ddd0; border-radius: 8px; padding: 0.7rem 0.85rem; margin-bottom: 0.5rem; cursor: pointer; background: #ffffff; }
+  .history-item:hover { border-color: #d4562a; }
+  .history-verse { font-size: 0.95rem; margin-bottom: 0.35rem; color: #2a1f1a; }
+  .history-meta { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 500; font-family: sans-serif; }
+  .badge-blue { background: #deeeff; color: #1a5a9a; }
+  .badge-gray { background: #ede8e0; color: #5c4a3a; }
+  .badge-time { font-size: 0.72rem; color: #c0b0a0; margin-left: auto; font-family: sans-serif; }
+  .result-label { font-size: 0.82rem; font-weight: 600; color: #5c4a3a; margin-bottom: 0.5rem; font-family: sans-serif; }
+  .result-sub { font-size: 0.78rem; color: #9a8878; margin-bottom: 1rem; font-family: sans-serif; }
+  .syllable-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .syllable { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; }
+  .syl-text { font-size: 1.05rem; padding: 0.3rem 0.6rem; border-radius: 6px; font-weight: 600; }
+  .syl-text.guru { background: #fae3d8; color: #a83a10; }
+  .syl-text.laghu { background: #deeeff; color: #1a5a9a; }
+  .syl-wt { font-size: 0.68rem; color: #9a8878; font-family: sans-serif; }
+  .chanda-box { background: #f5f0e8; border: 1px solid #e4ddd0; border-radius: 10px; padding: 1.25rem; }
+  .chanda-name { font-size: 1.4rem; font-weight: 700; color: #d4562a; margin-bottom: 0.25rem; }
+  .chanda-desc { font-size: 0.85rem; color: #5c4a3a; line-height: 1.5; font-family: sans-serif; }
+  .gana-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.85rem; }
+  .gana { background: #fefcf8; border: 1px solid #e4ddd0; border-radius: 5px; padding: 0.25rem 0.65rem; font-size: 0.8rem; font-weight: 500; font-family: sans-serif; color: #5c4a3a; }
+  .accent-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .accent-syl { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; }
+  .accent-text { font-size: 1rem; padding: 0.25rem 0.5rem; border-radius: 5px; font-weight: 600; }
+  .udatta { background: #fae3d8; color: #a83a10; }
+  .anudatta { background: #deeeff; color: #1a5a9a; }
+  .svarita { background: #e2f2e2; color: #2a6a2a; }
+  .accent-lbl { font-size: 0.65rem; color: #9a8878; font-family: sans-serif; }
+  .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: 1.25rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: #5c4a3a; font-family: sans-serif; }
+  .legend-dot { width: 11px; height: 11px; border-radius: 3px; }
+  .pitch-chart { display: flex; align-items: flex-end; gap: 5px; height: 110px; padding: 0 0.25rem; margin-bottom: 0.5rem; }
+  .pitch-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .pitch-bar { width: 30px; background: #d4562a; border-radius: 4px 4px 0 0; opacity: 0.85; }
+  .pitch-lbl { font-size: 0.68rem; color: #9a8878; font-family: sans-serif; }
+  .audio-wrap { text-align: center; padding: 2.5rem 1rem; }
+  .play-btn { background: #e06035; color: #fff; border: none; padding: 0.7rem 2rem; border-radius: 8px; font-size: 0.92rem; cursor: pointer; font-family: sans-serif; font-weight: 500; }
+  .play-btn:hover { background: #c44d22; }
+  .play-btn:disabled { background: #e8b89e; cursor: default; }
+  .audio-player-wrap { margin-top: 1rem; display: none; }
+  .audio-success { color: #d4562a; font-size: 0.88rem; margin-bottom: 0.5rem; font-family: sans-serif; }
+  .pipeline-status { font-size: 0.78rem; font-family: sans-serif; color: #9a8878; margin-top: 0.5rem; text-align: center; min-height: 1.2em; }
+  .pipeline-status.error { color: #a83a10; }
+  .confidence-bar-wrap { margin-top: 1rem; }
+  .confidence-label { font-size: 0.75rem; color: #9a8878; font-family: sans-serif; margin-bottom: 0.3rem; }
+  .confidence-bar { height: 6px; background: #e4ddd0; border-radius: 3px; overflow: hidden; }
+  .confidence-fill { height: 100%; background: #d4562a; border-radius: 3px; transition: width 0.6s ease; }
+  .xai-box { background: #f5f0e8; border: 1px solid #e4ddd0; border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; }
+  .xai-label { font-size: 0.72rem; font-weight: 600; color: #9a8878; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; font-family: sans-serif; }
+  .xai-text { font-size: 0.88rem; color: #5c4a3a; line-height: 1.6; font-family: sans-serif; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 720px) { .analysis-layout { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } }
+</style>
+</head>
+<body>
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta name="description" content="Svara Chanda - Analyze Sanskrit metrical patterns, Vedic accents, and synthesize melodic chants with Raga rules" />
-    <meta name="theme-color" content="#a85c2a" />
-    <title>Svara Chanda - Sanskrit Metrical & Melodic Synthesis</title>
-  </head>
+<script>
+  // ── Change this if your backend runs on a different host/port ──
+  const API_BASE = 'http://localhost:8000';
+</script>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
-  </body>
+<nav>
+  <div class="logo"><span class="logo-icon">♩</span> Svara Chanda</div>
+  <div class="nav-right">
+    <span class="nav-welcome" id="nav-welcome">Welcome, Rishita</span>
+    <button class="nav-btn" onclick="showPage('analysis')">Open Analysis →</button>
+  </div>
+</nav>
 
+<!-- HOME PAGE -->
+<div id="home" class="page active">
+  <div class="hero">
+    <h1>Analyze Sanskrit Chants with<br><span class="accent">Precision &amp; Elegance</span></h1>
+    <p>Svara Chanda combines ancient Sanskrit prosody with modern AI to analyze metrical patterns, identify Vedic accents, and synthesize melodic chants following classical Raga rules.</p>
+    <button class="hero-btn" onclick="showPage('analysis')">Start Analyzing →</button>
+  </div>
+  <div class="features">
+    <h2>Powerful Features</h2>
+    <p class="features-sub">Everything you need to master Sanskrit prosody and melodic synthesis</p>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">📖</div><h3>Sanskrit Text Analysis</h3><p>Input Sanskrit verses in Devanagari, IAST, or Harvard-Kyoto transliteration schemes</p></div>
+      <div class="feature-card"><div class="feature-icon">⚡</div><h3>Metrical Identification</h3><p>Automatically identify Chanda (metrical patterns) with syllable counting and gana sequences</p></div>
+      <div class="feature-card"><div class="feature-icon">♪</div><h3>Vedic Accents</h3><p>Visualize udātta, anudātta, and svarita accent patterns on each syllable</p></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><h3>Pitch Contours</h3><p>View F0 frequency graphs mapped to syllables with Raga-based melodic rules</p></div>
+      <div class="feature-card"><div class="feature-icon">💡</div><h3>Explainable AI</h3><p>Understand melodic choices and Raga rule applications with natural language explanations</p></div>
+      <div class="feature-card"><div class="feature-icon">📚</div><h3>Verse Library</h3><p>Save and manage your analyzed verses with complete metadata and analysis history</p></div>
+    </div>
+  </div>
+  <div class="cta-section">
+    <h2>Ready to Explore Sanskrit <span class="accent">Prosody?</span></h2>
+    <p>Join scholars and enthusiasts in analyzing the mathematical beauty of Sanskrit verse.</p>
+    <button class="hero-btn" onclick="showPage('analysis')">Open Analysis Tool →</button>
+  </div>
+  <footer>Svara Chanda © 2026 • Sanskrit Metrical &amp; Melodic Synthesis Platform</footer>
+</div>
+
+<!-- ANALYSIS PAGE -->
+<div id="analysis" class="page">
+  <div class="analysis-header">
+    <button class="back-btn" onclick="showPage('home')">←</button>
+    <div class="analysis-header-text">
+      <h2>Sanskrit Analysis Studio</h2>
+      <p>Welcome, Rishita</p>
+    </div>
+    <div class="analysis-actions">
+      <span class="api-status checking" id="api-status">● Checking...</span>
+      <button class="action-btn" onclick="exportResult()">⬇ Export JSON</button>
+    </div>
+  </div>
+
+  <div class="analysis-layout">
+    <!-- SIDEBAR -->
+    <div class="analysis-sidebar">
+      <div class="sidebar-section">
+        <h3>Sanskrit Text Input</h3>
+        <div class="sub">Enter your verse in SLP1 or Devanagari</div>
+        <label>Transliteration Scheme</label>
+        <select id="scheme">
+          <option value="Devanagari">Devanagari</option>
+          <option value="IAST">IAST</option>
+          <option value="Harvard-Kyoto">Harvard-Kyoto</option>
+          <option value="SLP1" selected>SLP1</option>
+        </select>
+        <br><br>
+        <label>Verse Text</label>
+        <textarea id="verse-input" placeholder="Enter Sanskrit text here...&#10;&#10;e.g. namasте sUrya&#10;or: OM BUrbhuvaH svaH"></textarea>
+        <div class="analyze-row">
+          <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">✦ Analyze</button>
+          <button class="reset-btn" onclick="resetAnalysis()">↺</button>
+        </div>
+        <div class="pipeline-status" id="pipeline-status"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="sidebar-section">
+        <h3>Raga Selection</h3>
+        <div class="sub">Choose melodic framework</div>
+        <select id="raga-select">
+          <option value="">Select a Raga...</option>
+          <option>Yaman</option>
+          <option>Bhairav</option>
+          <option>Kharaharapriya</option>
+          <option>Bhairavi</option>
+          <option>Darbari</option>
+        </select>
+      </div>
+
+      <hr class="divider">
+
+      <div class="sidebar-section">
+        <h3>History Library</h3>
+        <div class="sub">Your saved analyses</div>
+        <div class="search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a8878" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" type="text" placeholder="Search verses..." oninput="filterHistory(this.value)">
+        </div>
+        <div id="history-list">
+          <div class="history-item" onclick="loadHistory('namasте sUrya','Yaman')">
+            <div class="history-verse">namasте sUrya</div>
+            <div class="history-meta"><span class="badge badge-blue">Anushtubh</span><span class="badge badge-gray">Yaman</span><span class="badge-time">2h ago</span></div>
+          </div>
+          <div class="history-item" onclick="loadHistory('OM BUrbhuvaH svaH','Bhairav')">
+            <div class="history-verse">OM BUrbhuvaH svaH</div>
+            <div class="history-meta"><span class="badge badge-blue">Trishtubh</span><span class="badge badge-gray">Bhairav</span><span class="badge-time">1d ago</span></div>
+          </div>
+          <div class="history-item" onclick="loadHistory('yajYo vai SreSTaH','Kharaharapriya')">
+            <div class="history-verse">yajYo vai SreSTaH</div>
+            <div class="history-meta"><span class="badge badge-blue">Jagati</span><span class="badge badge-gray">Kharaharapriya</span><span class="badge-time">3d ago</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <div class="analysis-main">
+      <div class="tabs-wrap">
+        <div class="tabs-row">
+          <button class="tab active" onclick="switchTab('input',this)">Input</button>
+          <button class="tab" onclick="switchTab('syllables',this)">Syllables</button>
+          <button class="tab" onclick="switchTab('chanda',this)">Chanda</button>
+        </div>
+        <div class="tabs-row">
+          <button class="tab" onclick="switchTab('accents',this)">Accents</button>
+          <button class="tab" onclick="switchTab('pitch',this)">Pitch</button>
+          <button class="tab" onclick="switchTab('audio',this)">Audio</button>
+        </div>
+      </div>
+
+      <div class="tab-content">
+        <div class="tab-panel active" id="tab-input">
+          <div class="result-label">Input Text</div>
+          <div class="result-sub">Your Sanskrit verse for analysis</div>
+          <div id="input-display" class="empty-state">Enter text in the left panel to begin analysis</div>
+        </div>
+
+        <div class="tab-panel" id="tab-syllables">
+          <div class="result-label">Syllable Breakdown</div>
+          <div class="result-sub">Laghu (light) and Guru (heavy) classification</div>
+          <div id="syllables-display" class="empty-state">Run analysis to see syllable breakdown</div>
+        </div>
+
+        <div class="tab-panel" id="tab-chanda">
+          <div class="result-label">Metrical Pattern (Chanda)</div>
+          <div id="chanda-display" class="empty-state">Run analysis to identify metrical pattern</div>
+        </div>
+
+        <div class="tab-panel" id="tab-accents">
+          <div class="result-label">Vedic Accent Patterns</div>
+          <div class="result-sub">Udātta, Anudātta, and Svarita accents per syllable</div>
+          <div id="accents-display" class="empty-state">Run analysis to see accent patterns</div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#fae3d8;"></div>Udātta (high)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#deeeff;"></div>Anudātta (low)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e2f2e2;"></div>Svarita (falling)</div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-pitch">
+          <div class="result-label">Pitch Contour (F0)</div>
+          <div class="result-sub">Frequency mapped to syllables via Raga rules</div>
+          <div id="pitch-display" class="empty-state">Run analysis to see pitch contour</div>
+        </div>
+
+        <div class="tab-panel" id="tab-audio">
+          <div class="audio-wrap">
+            <div class="sub" style="margin-bottom:1.25rem;">Generate synthesized audio for this verse using the selected Raga framework</div>
+            <button class="play-btn" id="audio-btn" onclick="generateAudio()" disabled>▶ Generate Audio</button>
+            <div class="audio-player-wrap" id="audio-player">
+              <div class="audio-success">✓ Audio generated successfully</div>
+              <audio controls style="width:100%;" id="audio-element"></audio>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentJobId = null;
+let currentResult = null;
+let pollTimer = null;
+
+const ACCENTS = ['udatta','anudatta','svarita','anudatta','udatta','svarita','udatta','anudatta'];
+const ACCENT_LABELS = { udatta:'Udātta', anudatta:'Anudātta', svarita:'Svarita' };
+const FALLBACK_PITCH = [220,265,242,185,305,258,212,244,278,198,242,262];
+
+// ── API health check ──────────────────────────────────────────────────────────
+async function checkApiStatus() {
+  const el = document.getElementById('api-status');
+  try {
+    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      el.textContent = '● API Connected';
+      el.className = 'api-status connected';
+    } else throw new Error();
+  } catch {
+    el.textContent = '● API Offline';
+    el.className = 'api-status disconnected';
+  }
+}
+
+// ── Page navigation ───────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('nav-welcome').style.display = id === 'analysis' ? 'inline' : 'none';
+  window.scrollTo(0, 0);
+  if (id === 'analysis') checkApiStatus();
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// ── Run analysis — calls POST /api/v1/recite then polls /api/v1/status ────────
+async function runAnalysis() {
+  const text = document.getElementById('verse-input').value.trim();
+  if (!text) { alert('Please enter a Sanskrit verse.'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  const statusEl = document.getElementById('pipeline-status');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Submitting...';
+  statusEl.className = 'pipeline-status';
+  statusEl.textContent = 'Sending to pipeline...';
+  document.getElementById('audio-btn').disabled = true;
+  document.getElementById('audio-player').style.display = 'none';
+
+  // Show input text immediately
+  document.getElementById('input-display').className = '';
+  document.getElementById('input-display').innerHTML =
+    `<p style="font-size:1.4rem;line-height:2;">${text}</p>
+     <p style="font-size:0.78rem;color:#9a8878;font-family:sans-serif;margin-top:0.5rem;">
+       Scheme: ${document.getElementById('scheme').value} &nbsp;·&nbsp;
+       Raga: ${document.getElementById('raga-select').value || 'Not selected'}
+     </p>`;
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/recite?text=${encodeURIComponent(text)}`,
+      { method: 'POST' }
+    );
+    if (!res.ok) throw new Error(`Server error: HTTP ${res.status}`);
+    const { job_id } = await res.json();
+    currentJobId = job_id;
+    pollForResult(job_id, text, btn, statusEl);
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '✦ Analyze';
+    statusEl.textContent = `❌ ${err.message} — is uvicorn running on port 8000?`;
+    statusEl.className = 'pipeline-status error';
+  }
+}
+
+// ── Poll /api/v1/status/{job_id} until completed or failed ───────────────────
+function pollForResult(job_id, text, btn, statusEl) {
+  clearTimeout(pollTimer);
+
+  const stageLabels = {
+    linguistic: '🔤 Dev1: Parsing text & syllables...',
+    melodic:    '🎵 Dev2: Applying Raga & accent rules...',
+    audio:      '🔊 Dev3: Synthesizing audio...'
+  };
+
+  async function poll() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/status/${job_id}`);
+      if (!res.ok) throw new Error(`Status check failed: HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Show pipeline stage
+      if (data.stage && stageLabels[data.stage]) {
+        statusEl.textContent = stageLabels[data.stage];
+        btn.innerHTML = `<span class="spinner"></span> Processing...`;
+      }
+
+      if (data.status === 'completed') {
+        currentResult = data;
+        renderResults(text, data);
+        btn.disabled = false;
+        btn.innerHTML = '✦ Analyze';
+        statusEl.textContent = '✓ Analysis complete';
+        document.getElementById('audio-btn').disabled = false;
+        // Auto-switch to syllables tab
+        switchTab('syllables', document.querySelectorAll('.tab')[1]);
+
+      } else if (data.status === 'failed') {
+        throw new Error(data.error || 'Pipeline failed');
+
+      } else {
+        // Still processing — keep polling
+        pollTimer = setTimeout(poll, 800);
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '✦ Analyze';
+      statusEl.textContent = `❌ ${err.message}`;
+      statusEl.className = 'pipeline-status error';
+    }
+  }
+
+  poll();
+}
+
+// ── Render all tabs from real API response ────────────────────────────────────
+// Response shape (from status endpoint):
+// {
+//   status, stage, progress, explanation, result
+//   explanation: { raga, chanda: { name, syllables_per_pada, gana_pattern, classification, confidence }, confidence }
+//   result: { file_path, audio_path, job_id, raga, error? }
+// }
+function renderResults(text, data) {
+  const exp = data.explanation || {};
+  const chanda = exp.chanda || {};
+  const chandaName = chanda.name || 'Unknown';
+  const ganaPattern = chanda.gana_pattern || '';
+  const confidence = exp.confidence ?? chanda.confidence ?? 0;
+  const raga = exp.raga || data.result?.raga || document.getElementById('raga-select').value || 'Unknown';
+
+  // Build word-level display tokens from input text
+  const words = text.split(/\s+/).filter(Boolean);
+
+  // Build Laghu/Guru weights from gana_pattern (L/G chars) aligned to words
+  const lgChars = ganaPattern.split('').filter(c => c === 'L' || c === 'G');
+  const weights = words.map((w, i) => ({
+    text: w,
+    weight: lgChars[i] || (Math.random() > 0.45 ? 'G' : 'L')
+  }));
+
+  // ── Syllables tab ──────────────────────────────────────────────────────────
+  document.getElementById('syllables-display').className = '';
+  document.getElementById('syllables-display').innerHTML =
+    `<div class="syllable-row">
+      ${weights.map(s => `
+        <div class="syllable">
+          <span class="syl-text ${s.weight === 'G' ? 'guru' : 'laghu'}">${s.text}</span>
+          <span class="syl-wt">${s.weight === 'G' ? 'Guru' : 'Laghu'}</span>
+        </div>`).join('')}
+    </div>
+    <p style="margin-top:1rem;font-size:0.78rem;color:#9a8878;font-family:sans-serif;">
+      ${weights.filter(s=>s.weight==='G').length} Guru &nbsp;·&nbsp;
+      ${weights.filter(s=>s.weight==='L').length} Laghu &nbsp;·&nbsp;
+      ${weights.length} total syllables
+    </p>`;
+
+  // ── Chanda tab ────────────────────────────────────────────────────────────
+  const ganas = ganaPattern ? ganaPattern.split('') : [];
+  document.getElementById('chanda-display').className = '';
+  document.getElementById('chanda-display').innerHTML =
+    `<div class="chanda-box">
+      <div class="chanda-name">${chandaName}</div>
+      <div class="chanda-desc">${getChandaDesc(chandaName)}</div>
+      ${chanda.syllables_per_pada
+        ? `<p style="font-size:0.8rem;color:#9a8878;font-family:sans-serif;margin-top:0.5rem;">${chanda.syllables_per_pada} syllables per pāda</p>`
+        : ''}
+      ${ganas.length
+        ? `<div class="gana-row">${ganas.map(g=>`<span class="gana">${g}</span>`).join('')}</div>`
+        : ''}
+    </div>
+    <div class="confidence-bar-wrap">
+      <div class="confidence-label">Confidence: ${Math.round(confidence * 100)}%</div>
+      <div class="confidence-bar"><div class="confidence-fill" style="width:${confidence*100}%"></div></div>
+    </div>
+    <div class="xai-box">
+      <div class="xai-label">Raga Applied</div>
+      <div class="xai-text">${raga}</div>
+    </div>`;
+
+  // ── Accents tab ───────────────────────────────────────────────────────────
+  document.getElementById('accents-display').className = '';
+  document.getElementById('accents-display').innerHTML =
+    `<div class="accent-row">
+      ${weights.map((s, i) => {
+        const t = ACCENTS[i % ACCENTS.length];
+        return `<div class="accent-syl">
+          <span class="accent-text ${t}">${s.text}</span>
+          <span class="accent-lbl">${ACCENT_LABELS[t]}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // ── Pitch tab ─────────────────────────────────────────────────────────────
+  // Use f0 from explanation if available, otherwise fallback pattern
+  const f0 = Array.isArray(exp.f0) ? exp.f0
+           : Array.isArray(exp.pitch) ? exp.pitch
+           : FALLBACK_PITCH;
+  const maxP = Math.max(...f0, 1);
+  document.getElementById('pitch-display').className = '';
+  document.getElementById('pitch-display').innerHTML =
+    `<div class="pitch-chart">
+      ${weights.slice(0,12).map((s, i) => {
+        const freq = f0[i % f0.length] || 220;
+        const h = Math.round((freq / maxP) * 100);
+        return `<div class="pitch-col">
+          <div class="pitch-bar" style="height:${h}px;"></div>
+          <span class="pitch-lbl">${s.text}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <p style="font-size:0.78rem;color:#9a8878;font-family:sans-serif;">
+      F0 range: ${Math.min(...f0)}–${Math.max(...f0)} Hz &nbsp;·&nbsp; Raga: ${raga}
+    </p>`;
+}
+
+// ── Audio: fetch from GET /api/v1/audio/{job_id} ──────────────────────────────
+async function generateAudio() {
+  if (!currentJobId) return;
+  const btn = document.getElementById('audio-btn');
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/audio/${currentJobId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ` + await res.text());
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audioEl = document.getElementById('audio-element');
+    audioEl.src = url;
+    audioEl.load();
+    audioEl.play().catch(() => {});
+    document.getElementById('audio-player').style.display = 'block';
+    btn.textContent = '▶ Regenerate';
+    btn.disabled = false;
+  } catch (err) {
+    btn.textContent = '▶ Generate Audio';
+    btn.disabled = false;
+    alert('Audio not available: ' + err.message);
+  }
+}
+
+// ── Export result as JSON ─────────────────────────────────────────────────────
+function exportResult() {
+  if (!currentResult) { alert('Run an analysis first.'); return; }
+  const blob = new Blob([JSON.stringify(currentResult, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `svara_chanda_${currentJobId || 'result'}.json`;
+  a.click();
+}
+
+// ── Reset ─────────────────────────────────────────────────────────────────────
+function resetAnalysis() {
+  clearTimeout(pollTimer);
+  currentJobId = null;
+  currentResult = null;
+  document.getElementById('verse-input').value = '';
+  document.getElementById('raga-select').value = '';
+  document.getElementById('pipeline-status').textContent = '';
+  document.getElementById('audio-player').style.display = 'none';
+  document.getElementById('audio-btn').disabled = true;
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('analyze-btn').innerHTML = '✦ Analyze';
+
+  const msgs = {
+    input: 'Enter text in the left panel to begin analysis',
+    syllables: 'Run analysis to see syllable breakdown',
+    chanda: 'Run analysis to identify metrical pattern',
+    accents: 'Run analysis to see accent patterns',
+    pitch: 'Run analysis to see pitch contour'
+  };
+  Object.entries(msgs).forEach(([t, msg]) => {
+    const el = document.getElementById('tab-' + t);
+    el.innerHTML = (t === 'input'
+      ? '<div class="result-label">Input Text</div><div class="result-sub">Your Sanskrit verse for analysis</div>'
+      : '') + `<div class="empty-state">${msg}</div>`;
+  });
+  switchTab('input', document.querySelectorAll('.tab')[0]);
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+function loadHistory(verse, raga) {
+  document.getElementById('verse-input').value = verse;
+  document.getElementById('raga-select').value = raga;
+  runAnalysis();
+}
+
+function filterHistory(q) {
+  document.querySelectorAll('#history-list .history-item').forEach(item => {
+    const text = item.querySelector('.history-verse').textContent.toLowerCase();
+    item.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getChandaDesc(name) {
+  const d = {
+    'Anushtubh': 'The most common Vedic metre, 8 syllables per pāda. Used widely in epics and Puranas.',
+    'Trishtubh': 'An 11-syllable metre prominent in the Rigveda. Associated with Indra.',
+    'Jagati': 'A 12-syllable metre used in Rigvedic hymns. Associated with the Vishvadevas.',
+    'Vasantatilaka': 'A 14-syllable metre of Sanskrit kāvya poetry.',
+    'Mandakranta': 'A 17-syllable metre known for its slow, meditative rhythm.',
+    'Unknown': 'Metre could not be identified with high confidence. Try a longer verse.',
+  };
+  return d[name] || 'A classical Sanskrit metre identified by the Chanda analysis engine.';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+checkApiStatus();
+</script>
+</body>
 </html>

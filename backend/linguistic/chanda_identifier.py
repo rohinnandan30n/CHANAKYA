@@ -26,19 +26,43 @@ class ChandaIdentifier:
     CHANDA_PATTERNS = {
         'Anushtubh': {
             'syllables_per_pada': 8,
-            'typical_pattern': 'GGGG LGGG',
+            'typical_pattern': 'GGGGLLGG',
+            'classification': 'sama',
+            'frequency': 'most_common'
+        },
+        'Anushtubh-full': {
+            'syllables_per_pada': 32,
+            'typical_pattern': 'GGGGLLGGGGGGLLGGGGGGLLGGGGGGLLGG',
             'classification': 'sama',
             'frequency': 'most_common'
         },
         'Tristubh': {
             'syllables_per_pada': 11,
-            'typical_pattern': 'LGGG LLGG LGGG',
+            'typical_pattern': 'LGGGLGGGLLG',
             'classification': 'sama',
             'frequency': 'common'
         },
         'Jagati': {
             'syllables_per_pada': 12,
-            'typical_pattern': 'LGGG LGGG LGGG',
+            'typical_pattern': 'LGGGLGGGLGGG',
+            'classification': 'sama',
+            'frequency': 'common'
+        },
+        'Gayatri': {
+            'syllables_per_pada': 8,
+            'typical_pattern': 'LLLLLLGG',
+            'classification': 'sama',
+            'frequency': 'common'
+        },
+        'Vasantatilaka': {
+            'syllables_per_pada': 14,
+            'typical_pattern': 'GGLLGLLGLLLGGG',
+            'classification': 'sama',
+            'frequency': 'common'
+        },
+        'Mandakranta': {
+            'syllables_per_pada': 17,
+            'typical_pattern': 'GGGGLLLLLGGLGGG',
             'classification': 'sama',
             'frequency': 'common'
         },
@@ -47,7 +71,19 @@ class ChandaIdentifier:
             'typical_pattern': 'GLLGL',
             'classification': 'ardhasama',
             'frequency': 'rare'
-        }
+        },
+        'Shakvari': {
+            'syllables_per_pada': 14,
+            'typical_pattern': 'LLLLLLLLLLLLGG',
+            'classification': 'sama',
+            'frequency': 'rare'
+        },
+        'Indravajra': {
+            'syllables_per_pada': 11,
+            'typical_pattern': 'GGLLLGGLGGG',
+            'classification': 'sama',
+            'frequency': 'common'
+        },
     }
     
     @staticmethod
@@ -80,13 +116,18 @@ class ChandaIdentifier:
         for chanda_name, chanda_info in ChandaIdentifier.CHANDA_PATTERNS.items():
             expected_count = chanda_info['syllables_per_pada']
             
-            # Check if syllable count matches
-            if syllable_count == expected_count:
+            # Fuzzy match: allow ±8 syllable difference
+            if abs(syllable_count - expected_count) <= 8:
                 expected_pattern = chanda_info['typical_pattern'].replace(' ', '')
                 
-                # Simple matching: count matching positions
-                match_count = sum(1 for i, (a, b) in enumerate(zip(pattern, expected_pattern)) if a == b)
-                confidence = match_count / len(expected_pattern)
+                # Match over the shorter of the two
+                min_len = min(len(pattern), len(expected_pattern))
+                match_count = sum(1 for a, b in zip(pattern[:min_len], expected_pattern[:min_len]) if a == b)
+                confidence = match_count / max(len(expected_pattern), syllable_count)
+                
+                # Boost confidence if syllable count is exact
+                if syllable_count == expected_count:
+                    confidence = min(1.0, confidence * 1.2)
                 
                 if confidence > best_confidence:
                     best_confidence = confidence

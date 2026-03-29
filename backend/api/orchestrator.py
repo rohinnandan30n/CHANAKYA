@@ -11,12 +11,9 @@ def run_pipeline(job_id, text, jobs):
         jobs[job_id]["stage"] = "melodic"
         b = apply_melody(a)
 
-        # Fix explanation shape to match what frontend expects:
-        # explanation.chanda must be a dict with {name, gana_pattern, confidence}
-        # explanation.raga must be a string (not "fallback")
+        # Fix explanation shape
         raw_exp = b.get("explanation", {})
         raw_chanda = a.get("chanda", {})
-
         jobs[job_id]["explanation"] = {
             "raga": raw_exp.get("raga") if raw_exp.get("raga") not in (None, "fallback", "unknown") else "Yaman",
             "chanda": {
@@ -29,8 +26,16 @@ def run_pipeline(job_id, text, jobs):
             "confidence": raw_exp.get("confidence", 0.5)
         }
 
-        # Pass slp1_tokens so Dev3 can synthesize properly
-        b["slp1_tokens"] = [s.get("syllable", "") for s in a.get("syllables", [])] or [text]
+        # Pass raw text as original_text so Dev3 can transliterate whole words
+        b["original_text"] = text
+        syllables = [s.get("syllable", "") for s in a.get("syllables", [])]
+        b["slp1_tokens"] = syllables if syllables else text.split()
+
+        # Generate varied f0 so audio isn't all the same pitch
+        base_f0 = [220.0, 240.0, 260.0, 250.0, 235.0, 245.0, 255.0, 230.0]
+        n = len(b["slp1_tokens"])
+        b["f0"] = [base_f0[i % len(base_f0)] for i in range(n)]
+        b["durations"] = [200.0] * n
 
         jobs[job_id]["stage"] = "audio"
         c = generate_audio(b, job_id)

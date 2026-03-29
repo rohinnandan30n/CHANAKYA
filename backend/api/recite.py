@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 import uuid, os, wave, struct, math
 from backend.api.orchestrator import run_pipeline
@@ -27,14 +27,15 @@ def get_status(job_id: str):
 @router.get("/audio/{job_id}")
 def get_audio(job_id: str):
     job = jobs.get(job_id)
-    if not job or job["status"] != "completed":
-        return {"error": "not ready"}
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job["status"] != "completed":
+        raise HTTPException(status_code=404, detail=f"Audio not ready: {job['status']}")
 
     audio_path = None
     if job.get("result"):
         audio_path = job["result"].get("file_path") or job["result"].get("audio_path")
 
-    # If file is missing or broken, use a real demo WAV
     if not audio_path or not os.path.exists(audio_path) or os.path.getsize(audio_path) < 100:
         demo_files = ["output/demo_namaste.wav", "output/recitation.wav", "output/demo_gayatri.wav"]
         audio_path = next((f for f in demo_files if os.path.exists(f) and os.path.getsize(f) > 1000), None)
@@ -43,7 +44,9 @@ def get_audio(job_id: str):
             os.makedirs("output", exist_ok=True)
             _write_sine_wav(audio_path)
 
-    return FileResponse(audio_path, media_type="audio/wav", filename=f"svara_{job_id}.wav")
+    media_type = "audio/mpeg" if audio_path.endswith(".mp3") else "audio/wav"
+    ext = "mp3" if audio_path.endswith(".mp3") else "wav"
+    return FileResponse(audio_path, media_type=media_type, filename=f"svara_{job_id}.{ext}")
 
 
 def _write_sine_wav(path: str, duration: int = 3, freq: float = 220.0):

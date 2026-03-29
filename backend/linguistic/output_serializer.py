@@ -75,7 +75,7 @@ class ChandaOutput(BaseModel):
     )
     
     name: str = Field(..., min_length=1, description="Metre name")
-    syllables_per_pada: int = Field(..., ge=1, le=32, description="Syllables per pada")
+    syllables_per_pada: int = Field(..., ge=1, le=100, description="Syllables per pada")
     gana_pattern: str = Field(..., pattern="^[LG ]+$", description="Pattern like 'GGGG LGGG'")
     classification: str = Field(..., pattern="^(sama|ardhasama|vishama|unknown)$", description="Metre classification")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence 0.0-1.0")

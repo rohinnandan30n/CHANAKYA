@@ -97,6 +97,12 @@ class TextPreprocessor:
         if any(char in text for char in 'āēīōūṁṅñṭḍḻḹ'):
             return 'iast'
         
+        # Check for SLP1 (has uppercase vowels/consonants like A, I, U, B, G, N, R, S, T)
+        slp1_markers = set('AIUEOfFxXeEoOMHkKgGNcCjJYwWqQRtTdDnpPbBmyrlvzSsh')
+        upper_chars = set(c for c in text if c.isupper())
+        if upper_chars and upper_chars.issubset(slp1_markers):
+            return 'slp1'
+        
         # Check for Harvard-Kyoto (basic ASCII letters)
         if TextPreprocessor.HARVARD_KYOTO_PATTERN.match(text):
             return 'harvard_kyoto'
@@ -253,7 +259,8 @@ class TextPreprocessor:
             'devanagari': sanscript.DEVANAGARI,
             'iast': sanscript.IAST,
             'hk': sanscript.HK,
-            'harvard_kyoto': sanscript.HK,  # Allow full name
+            'harvard_kyoto': sanscript.HK,
+            'slp1': sanscript.SLP1,
         }
         
         if from_scheme not in scheme_map:
@@ -261,6 +268,10 @@ class TextPreprocessor:
                 f"Unsupported scheme '{from_scheme}'. "
                 f"Supported schemes: {', '.join(scheme_map.keys())}"
             )
+        
+        # SLP1 is already canonical — return as-is
+        if from_scheme == 'slp1':
+            return text, {'scheme': 'slp1', 'unrecognized_chars': set(), 'conversion_status': 'success', 'warnings': [], 'character_count': len(text)}
         
         text = text.strip()
         metadata = {
